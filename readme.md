@@ -54,10 +54,12 @@ c1.Print("c1.pdf")
         hist->Fill(x, y);
     }
 
+    	
     hist->GetXaxis()->SetTitle("x [cm]");
     hist->GetYaxis()->SetTitle("y [cm]");
     hist->GetZaxis()->SetTitle("Entries");
-
+	
+    hist->Smooth();  //使得图片区域变光滑
     hist->SetContour(1000); //使得palette 变smooth
 
     hist->Draw("colz"); //colz surf3 cont1 lego2
@@ -67,6 +69,8 @@ c1.Print("c1.pdf")
 ```
 
 ![](colz.png)
+
+
 
 ## 2. Graph
 
@@ -173,6 +177,34 @@ c1.Update()
 ```
 
 ![](fit.png)
+
+TGraph2D
+
+```c++
+{
+    TCanvas *c = new TCanvas("c", "Graph2D example", 0, 0, 600, 400);
+    Double_t x, y, z, P = 6.;
+    Int_t np = 200;
+    TGraph2D *dt = new TGraph2D();
+    dt->SetTitle("Graph title; X axis title; Y axis title; Z axis title");
+    TRandom *r = new TRandom();
+    for (Int_t N = 0; N < np; N++)
+    {
+        x = 2 * P * (r->Rndm(N)) - P;
+        y = 2 * P * (r->Rndm(N)) - P;
+        z = (sin(x) / x) * (sin(y) / y) + 0.2;
+        dt->SetPoint(N, x, y, z);
+    }
+    gStyle->SetPalette(1);
+    dt->Draw("colz"); // surf1  CONT5 TRI1 colz
+
+    c->Print("Graph2D.png");
+
+    return c;
+}
+```
+
+![](Graph2D.png)
 
 ## 3.文件存储
 
