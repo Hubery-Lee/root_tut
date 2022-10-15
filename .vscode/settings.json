@@ -2,6 +2,7 @@
     "files.associations": {
         "tut29.C": "cpp",
         "iosfwd": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "transparency.C": "cpp"
     }
 }

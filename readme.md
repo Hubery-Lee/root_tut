@@ -70,8 +70,6 @@ c1.Print("c1.pdf")
 
 ![](colz.png)
 
-
-
 ## 2. Graph
 
 ```python
@@ -117,6 +115,12 @@ c1.Update()
 
 ```
 
+![](graph_demo1.png)
+
+array 参数的选项
+
+![](array_parameter.png)
+
 errorbar
 
 ```python
@@ -131,7 +135,7 @@ c1.SetGrid()
 c1.GetFrame().SetFillColor( 21 )
 c1.GetFrame().SetBorderSize( 12 )
 
-n = 10;
+n = 10
 x  = array( 'f', [ -0.22, 0.05, 0.25, 0.35,  0.5, 0.61,  0.7, 0.85, 0.89, 0.95 ] )
 ex = array( 'f', [  0.05,  0.1, 0.07, 0.07, 0.04, 0.05, 0.06, 0.07, 0.08, 0.05 ] )
 y  = array( 'f', [     1,  2.9,  5.6,  7.4,  9.0,  9.6,  8.7,  6.3,  4.5,    1 ] )
@@ -145,6 +149,8 @@ gr.Draw( 'ALP' )
 
 c1.Update()
 ```
+
+![](errobar_demo1.png)
 
 ```C++
 {
@@ -167,12 +173,11 @@ c1.Update()
 
         if (file.eof())
             break;
-
-        gr->Draw("A*");
-
-        TF1 *fit = new TF1("fit", "pol1", 0, 100);
-        gr->Fit("fit");
     }
+    gr->Draw("A*");
+
+    TF1 *fit = new TF1("fit", "pol1", 0, 100);
+    gr->Fit("fit");
 }
 ```
 
@@ -205,6 +210,32 @@ TGraph2D
 ```
 
 ![](Graph2D.png)
+
+palette 可选参数
+
+```c++
+kDeepSea=51,          kGreyScale=52,    kDarkBodyRadiator=53,
+kBlueYellow= 54,      kRainBow=55,      kInvertedDarkBodyRadiator=56,
+kBird=57,             kCubehelix=58,    kGreenRedViolet=59,
+kBlueRedYellow=60,    kOcean=61,        kColorPrintableOnGrey=62,
+kAlpine=63,           kAquamarine=64,   kArmy=65,
+kAtlantic=66,         kAurora=67,       kAvocado=68,
+kBeach=69,            kBlackBody=70,    kBlueGreenYellow=71,
+kBrownCyan=72,        kCMYK=73,         kCandy=74,
+kCherry=75,           kCoffee=76,       kDarkRainBow=77,
+kDarkTerrain=78,      kFall=79,         kFruitPunch=80,
+kFuchsia=81,          kGreyYellow=82,   kGreenBrownTerrain=83,
+kGreenPink=84,        kIsland=85,       kLake=86,
+kLightTemperature=87, kLightTerrain=88, kMint=89,
+kNeon=90,             kPastel=91,       kPearl=92,
+kPigeon=93,           kPlum=94,         kRedBlue=95,
+kRose=96,             kRust=97,         kSandyTerrain=98,
+kSienna=99,           kSolar=100,       kSouthWest=101,
+kStarryNight=102,     kSunset=103,      kTemperatureMap=104,
+kThermometer=105,     kValentine=106,   kVisibleSpectrum=107,
+kWaterMelon=108,      kCool=109,        kCopper=110,
+kGistEarth=111,       kViridis=112,     kCividis=113
+```
 
 ## 3.文件存储
 
@@ -384,6 +415,10 @@ h.Fit( total, 'R+' )
 
 ![](fitting.png)
 
+数据拟合函数参数含义：
+
+![](fittingParameter.png)
+
 ## 5. 绘图美化
 
 ```C++
@@ -440,7 +475,7 @@ h.Fit( total, 'R+' )
     l1->SetLineColor(kOrange);
     l1->Draw();
     
-    //添加尖头及文字
+    //添加箭头及文字
     double x0 =1.5;
     int bin = hist->FindBin(x0);
     double y0 = hist->GetBinContent(bin);
@@ -450,12 +485,12 @@ h.Fit( total, 'R+' )
     arr->SetArrowSize(0.02);
     arr->Draw();
 
-    TLatex *t = new TLatex(4,80,"y=a\\cdot exp(x/\\sigma)");
+    TLatex *t = new TLatex(4,80,"y=a\\cdot exp(x-\\mu/\\sigma)");
     t->Draw();
 }
 ```
 
-![](/home/hubery-lee/WorkSpace/leeTutorials/root_tut/beautify.png)
+![](beautify.png)
 
 ## ogl绘制3D图
 
@@ -894,3 +929,83 @@ void tut()
 root tut.C+ 
 ```
 
+## 透明图像的绘制
+
+```c++
+//void transparency()
+{
+   auto c1 = new TCanvas("c1", "c1",224,330,700,527);
+   c1->Range(-0.125,-0.125,1.125,1.125);
+ 
+   auto tex = new TLatex(0.06303724,0.0194223,"This text is opaque and this line is transparent");
+   tex->SetLineWidth(2);
+   tex->Draw();
+ 
+   auto arrow = new TArrow(0.5555158,0.07171314,0.8939828,0.6195219,0.05,"|>");
+   arrow->SetLineWidth(4);
+   arrow->SetAngle(30);
+   arrow->Draw();
+ 
+   // Draw a transparent graph.
+   Double_t x[10] = {
+   0.5232808, 0.8724928, 0.9280086, 0.7059456, 0.7399714,
+   0.4659742, 0.8241404, 0.4838825, 0.7936963, 0.743553};
+   Double_t y[10] = {
+   0.7290837, 0.9631474, 0.4775896, 0.6494024, 0.3555777,
+   0.622012, 0.7938247, 0.9482072, 0.3904382, 0.2410359};
+   auto graph = new TGraph(10,x,y);
+   graph->SetLineColorAlpha(46, 0.1);
+   graph->SetLineWidth(7);
+   graph->Draw("l");
+ 
+   // Draw an ellipse with opaque colors.
+   auto ellipse = new TEllipse(0.1740688,0.8352632,0.1518625,0.1010526,0,360,0);
+   ellipse->SetFillColor(30);
+   ellipse->SetLineColor(51);
+   ellipse->SetLineWidth(3);
+   ellipse->Draw();
+ 
+   // Draw an ellipse with transparent colors, above the previous one.
+   ellipse = new TEllipse(0.2985315,0.7092105,0.1566977,0.1868421,0,360,0);
+   ellipse->SetFillColorAlpha(9, 0.571);
+   ellipse->SetLineColorAlpha(8, 0.464);
+   ellipse->SetLineWidth(3);
+   ellipse->Draw();
+ 
+   // Draw a transparent blue text.
+   tex = new TLatex(0.04871059,0.1837649,"This text is transparent");
+   tex->SetTextColorAlpha(9, 0.476);
+   tex->SetTextSize(0.125);
+   tex->SetTextAngle(26.0);
+   tex->Draw();
+ 
+   // Draw two transparent markers
+   auto marker = new TMarker(0.03080229,0.998008,20);
+   marker->SetMarkerColorAlpha(2, .3);
+   marker->SetMarkerStyle(20);
+   marker->SetMarkerSize(1.7);
+   marker->Draw();
+   marker = new TMarker(0.1239255,0.8635458,20);
+   marker->SetMarkerColorAlpha(2, .2);
+   marker->SetMarkerStyle(20);
+   marker->SetMarkerSize(1.7);
+   marker->Draw();
+ 
+   // Draw an opaque marker
+   marker = new TMarker(0.3047994,0.6344622,20);
+   marker->SetMarkerColor(2);
+   marker->SetMarkerStyle(20);
+   marker->SetMarkerSize(1.7);
+   marker->Draw();
+    
+   c1->Print("transparency.pdf");
+}
+```
+
+窗口显示出错，存为pdf显示正常，采用ghostscript将pdf转换为png
+
+```sh
+gs -dSAFER -r600 -sDEVICE=pngalpha -o transparency.png transparency.pdf
+```
+
+![](transparency.png)
