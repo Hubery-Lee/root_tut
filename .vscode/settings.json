@@ -5,6 +5,7 @@
         "ostream": "cpp",
         "transparency.C": "cpp",
         "testStyle.C": "cpp",
-        "testStyle2.C": "cpp"
+        "testStyle2.C": "cpp",
+        "histpalettecolor.C": "cpp"
     }
 }

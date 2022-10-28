@@ -1012,7 +1012,7 @@ gs -dSAFER -r600 -sDEVICE=pngalpha -o transparency.png transparency.pdf
 
 ![](transparency.png)
 
-## 自动设置直方图palette颜色
+## :house:自动设置直方图palette颜色
 
 使用palette的选项卡，`PFC `(Palette Fill Color), `PLC` (Palette Line Color) and `PMC` (Palette Marker Color). When one of these options is given to `TH1::Draw` the histogram get its color from the current color palette defined by `gStyle->SetPalette(...)`. The color is determined according to the number of objects having palette coloring in the current pad.
 
@@ -1309,6 +1309,48 @@ void testStyle2()
 ```
 
 ![](style.png)
+
+王思广老师的模板：[CommonCUtsPureROOT.h](CommonCutsPureROOT.h)
+
+## 不同尺度左右轴直方图叠加
+
+以下脚本创建两个直方图；第二直方图是第一直方图的bins积分。它显示了在同一个Pad中绘制两个直方图的过程，并使用右侧的新垂直轴绘制第二个直方图横坐标。
+
+```c++
+void twoscales() {
+   TCanvas *c1 = new TCanvas("c1","different scales hists",600,400);
+   //create, fill and draw h1
+   gStyle->SetOptStat(kFALSE);
+   TH1F *h1 = new TH1F("h1","my histogram",100,-3,3);
+   for (Int_t i=0;i<10000;i++) h1->Fill(gRandom->Gaus(0,1));
+   h1->Draw();
+   c1->Update();
+   //create hint1 filled with the bins integral of h1
+   TH1F *hint1 = new TH1F("hint1","h1 bins integral",100,-3,3);
+   Float_t sum = 0;
+   for (Int_t i=1;i<=100;i++) {
+      sum += h1->GetBinContent(i);
+      hint1->SetBinContent(i,sum);
+   }
+   //scale hint1 to the pad coordinates
+   Float_t rightmax = 1.1*hint1->GetMaximum();
+   Float_t scale    = gPad->GetUymax()/rightmax;
+   hint1->SetLineColor(kRed);
+   hint1->Scale(scale);
+   hint1->Draw("same");
+   //draw an axis on the right side
+   TGaxis*axis = new TGaxis(gPad->GetUxmax(),gPad->GetUymin(),
+                            gPad->GetUxmax(),gPad->GetUymax(),
+                            0,rightmax,510,"+L");
+   axis->SetLineColor(kRed);
+   axis->SetLabelColor(kRed);
+   axis->Draw();
+}
+```
+
+![Superimposed histograms with different scales](https://root.cern/root/htmldoc/guides/users-guide/pictures/0300003A.png)
+
+
 
 ## 参考资料：
 
