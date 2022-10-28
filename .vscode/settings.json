@@ -3,6 +3,8 @@
         "tut29.C": "cpp",
         "iosfwd": "cpp",
         "ostream": "cpp",
-        "transparency.C": "cpp"
+        "transparency.C": "cpp",
+        "testStyle.C": "cpp",
+        "testStyle2.C": "cpp"
     }
 }

@@ -2,6 +2,8 @@
 
 :fire:作者:fire:忽必烈李@bilibili
 
+注：标数字部分基本内容，未表数字部分为优化内容
+
 [toc]
 
 root是用于粒子物理实验TB或PB及以上数据处理的开源软件，其他特点是数据读取与处理快，并且是一款独立的软件。
@@ -1009,3 +1011,309 @@ gs -dSAFER -r600 -sDEVICE=pngalpha -o transparency.png transparency.pdf
 ```
 
 ![](transparency.png)
+
+## 自动设置直方图palette颜色
+
+使用palette的选项卡，`PFC `(Palette Fill Color), `PLC` (Palette Line Color) and `PMC` (Palette Marker Color). When one of these options is given to `TH1::Draw` the histogram get its color from the current color palette defined by `gStyle->SetPalette(...)`. The color is determined according to the number of objects having palette coloring in the current pad.
+
+```c++
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Palette coloring for histogram is activated thanks to the options `PFC`
+/// (Palette Fill Color), `PLC` (Palette Line Color) and `PMC` (Palette Marker Color).
+/// When one of these options is given to `TH1::Draw` the histogram get its color
+/// from the current color palette defined by `gStyle->SetPalette(...)`. The color
+/// is determined according to the number of objects having palette coloring in
+/// the current pad.
+///
+/// In this example five histograms are displayed with palette coloring for lines and
+/// and marker. The histograms are drawn with makers and error bars and one can see
+/// the color of each histogram is picked inside the default palette `kBird`.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Olivier Couet
+
+void histpalettecolor()
+{
+   auto C = new TCanvas();
+
+   gStyle->SetOptTitle(kFALSE);
+   gStyle->SetOptStat(0);
+
+   auto h1 = new TH1F ("h1","Histogram drawn with full circles",100,-4,4);
+   auto h2 = new TH1F ("h2","Histogram drawn with full squares",100,-4,4);
+   auto h3 = new TH1F ("h3","Histogram drawn with full triangles up",100,-4,4);
+   auto h4 = new TH1F ("h4","Histogram drawn with full triangles down",100,-4,4);
+   auto h5 = new TH1F ("h5","Histogram drawn with empty circles",100,-4,4);
+
+   TRandom3 rng;
+   Double_t px,py;
+   for (Int_t i = 0; i < 25000; i++) {
+      rng.Rannor(px,py);
+      h1->Fill(px,10.);
+      h2->Fill(px, 8.);
+      h3->Fill(px, 6.);
+      h4->Fill(px, 4.);
+      h5->Fill(px, 2.);
+   }
+
+   h1->SetMarkerStyle(kFullCircle);
+   h2->SetMarkerStyle(kFullSquare);
+   h3->SetMarkerStyle(kFullTriangleUp);
+   h4->SetMarkerStyle(kFullTriangleDown);
+   h5->SetMarkerStyle(kOpenCircle);
+
+   h1->Draw("PLC PMC");  //`PFC` (Palette Fill Color), `PLC` (Palette Line Color) and `PMC` (Palette Marker Color).
+   h2->Draw("SAME PLC PMC"); 
+   h3->Draw("SAME PLC PMC");
+   h4->Draw("SAME PLC PMC");
+   h5->Draw("SAME PLC PMC");
+
+   gPad->BuildLegend();
+}
+
+```
+
+![](histpalettecolor.png)
+
+## 如何查看root演示案例
+
+下载root 源文件，解压获得tutorial文件。分别采用python和c++运行root 的demo， 点开Browser查看案例演示及源代码。
+
+![](demo.png)
+
+**方法1：**
+
+进入tutorial中的pyroot文件夹，运行
+
+```python
+pyroot demo.py
+```
+
+**方法2：**
+
+进入tutorial文件夹，运行
+
+```c++
+root demos.C
+```
+
+## 如何设置自己的root模板
+
+**1.rootlogon.C** 
+
+文件路径：$ROOTSYS/tutorials/rootlogon.C 
+
+rootlogon.C文件在root启动的当前目录下会被自动调用执行，进行满足用户的特殊配置要求。例如，导入自己的库，设置自己绘图样式
+
+**a. 导入自己编译的库**
+
+想要导入自己的库函数，在rootlogon.C文件内可加入
+
+```c++
+gSystem->Load("xxx.so")
+```
+
+**b. 设置自己的绘图样式**
+
+```c++
+// This is the file rootlogon.c
+{
+TStyle *mystyle = new TStyle("MyStyle","My Root Styles");
+ 
+// from ROOT plain style
+myStyle->SetCanvasBorderMode (0) ;
+myStyle->SetPadBorderMode (0) ;
+myStyle—>SetPadcolor (0) ;
+myStyle->SetCanvasColor (0) ;
+myStyle->SetTitleColor (1) ;
+myStyle->SetStatcolor (0) ;
+myStyle->SetLabelSize(0.03,"xyz"); // size of axis values
+
+// default canvas positioning
+myStyle->setCanvasDefX (900) ;
+myStyle—>SetCanvasDefY (20) ;
+myStyle->setCanvasDefH (550) ;
+myStyle->setCanvasDefW(540) ;
+
+myStyle->SetPadBottomMargin (0.1) ;
+myStyle->SetPadTopMargin (0.1) ;
+myStyle—>setPadLeftMargin (0.1) ;
+myStyle—>SetPadRightMargin (0.1) ;
+myStyle->SetPadTickX (1);
+myStyle—>SetPadTickY (1) ;
+myStyle—>SetFrameBorderMode (0) ;
+
+// Din letter
+myStyle->SetPaperSize(21, 28);//show overflow and underflow
+myStyle->SetOptStat(111111);
+myStyle->SetOptFit(1011);
+myStyle->SetPalette(1);
+
+//apply the new style
+gROOT->SetStyle("MyStyle"); //uncomment to set this style
+gROOT->ForceStyle(); //use this style,not the one saved in root files
+printf("\n Beginning new ROOT session with private TStyle \n");
+
+}
+```
+
+![](logon.png)
+
+**2. 将常用代码放到一个文件中以提高效率**
+
+将常用文件放到一个文件中，如`useful.h`
+
+![](useful.png)
+
+`useful.h`文件：
+
+```c++
+#include <TStyle.h>
+// Set the general style options
+void SetSgStyle()
+{
+    // No Canvas Border
+    gStyle->SetCanvasBorderMode(0);
+    gStyle->SetCanvasBorderSize(0);
+    // White BG
+    gStyle->SetCanvasColor(10);
+    // Format for axes
+    gStyle->SetLabelFont(22, "xyz");
+    gStyle->SetLabelSize(0.06, "xyz");
+    gStyle->SetLabelOffset(0.01, "xyz");
+    gStyle->SetNdivisions(510, "xyz");
+    gStyle->SetTitleFont(22, "xyz");
+    gStyle->SetTitleColor(1, "xyz");
+    gStyle->SetTitleSize(0.06, "xyz");
+    gStyle->SetTitleOffset(0.91);
+    gStyle->SetTitleYOffset(1.1);
+    // No pad borders
+    gStyle-> SetPadBorderMode(0);
+    gStyle->SetPadBorderSize(0);
+    // White BG
+    gStyle->SetPadColor(10);
+    // Margins for labels etc.
+    gStyle->SetPadLeftMargin(0.15);
+    gStyle->SetPadBottomMargin(0.15);
+    gStyle->SetPadRightMargin(0.05);
+    gStyle->SetPadTopMargin(0.06);
+    // No error bars in x direction
+    gStyle->SetErrorX(0);
+    // Format legend
+    gStyle->SetLegendBorderSize(0);
+    gStyle->SetFillStyle(0);
+}
+```
+
+在`useful.h`中加入：
+
+```c++
+// 设置Latex放置位置（x0,y0）,直方图，字符串，字体大小
+void txtN(Double_t x0, Double_t y0, TH1 *h, Char_t sName[] = "N=%.0f", Double_t sizeTxt = 0.06)
+{
+    h->SetStats(kFALSE);
+    TLatex *ltx = new TLatex();
+    ltx->SetNDC(kTRUE);
+    ltx->SetTextColor(h->GetLineColor());
+    ltx->SetTextFont(22);
+    ltx->SetTextSize(sizeTxt);
+    ltx->DrawLatex(x0, y0, Form(sName, h->GetEntries()));
+    gPad->Modified();
+    gPad->Update();
+}
+```
+
+`testStyle.C`文件：
+
+```c++
+#include "useful.h"
+void testStyle()
+{
+    TH1F *h1 = new TH1F("h1","",100,-10,10);
+    SetSgStyle();
+    TH1F *h2 = new TH1F("h2","",100,-10,10);
+    h1->FillRandom("gaus",1000);
+    h2->FillRandom("gaus",1000);
+    TCanvas *c1 = new TCanvas("c1","");
+    c1->Divide(2,1);
+    c1->cd(1);
+    h1->Draw();
+    c1->cd(2);
+    h2->Draw();
+    txtN(0.2,0.95,h2);// 自定义格式
+}
+```
+
+![](style1.png)
+
+在`useful.h`中加入：
+
+```c++
+// hist名称，bin宽度，bin上下限，设置MeV标题，设置Mark样式
+TH1F * newTH1F(Char_t name[]="h1",Double_t binw=0.01, Double_t LowBin=0.0,Double_t HighBin=3.0,Bool_t MevTitle=kTRUE,Int_t iMode=-1)
+{
+    Int_t nbin = TMath::Nint((HighBin-LowBin)/binw);
+    HighBin = binw*nbin + LowBin;
+    
+    TH1F *h = new TH1F(name,"",nbin,LowBin,HighBin);
+    if(MevTitle)
+        h->GetYaxis->SetTitle(Form("Events/(%.0fMeV/c^{2})",h->GetBinWidth(1)*1000));
+    h->SetMinimum(0.0);
+    h->GetYaxis()->SetTitleOffset(1.1);
+    if(iMode>=0&&iMode<14){
+        Int_t iMarker[] ={20,21,24,25,28,29,30,27,3,5,2,,26,22,23};
+        Int_t iColor[]={2,4,6,9,1,50,40,31,41,35,44,38,47,12};
+        h->SetMarkerStyle(iMarker[iMode]);
+        h->SetMarkerColor(iColor[iMode]);
+        h->SetLineColor(iColor[iMode]);
+    }
+    return h;
+}
+// LineX1： 线的位置，颜色，宽度
+void LineX1(Double_t atX, Int_t iColor=kRed, Int_t iStyle=1,Double_t iWidth=1)
+{
+    gPad->Modified();
+    gPad->Update();
+    TLine *l1 = new TLine(atX,gPad->GetUymin(),gPad->GetUymax());
+    l1->SetLineColor(iColor);
+    l1->SetLineStyle(iStyle);
+    l1->SetLineWidth(iWidth);
+    l1->Draw();
+}
+```
+
+使用案例，`testStyle2`
+
+```c++
+#include "useful.h"
+void testStyle2()
+{
+    TH1F *h1 = newTH1F("h1",0.5,-10,10,kTRUE,1);
+    SetSgStyle();
+    TH1F *h2 = newTH1F("h2",0.5,-10,10,kTRUE,2);
+    h1->FillRandom("gaus",1000);
+    h2->FillRandom("gaus",1000);
+    TCanvas *c1 = new TCanvas("c1","");
+    c1->Divide(2,1);
+    c1->cd(1);
+    h1->Draw("EP");
+    c1->cd(2);
+    h2->Draw("EP");
+    txtN(0.2,0.95,h2);
+    LineX1(0.0);
+}
+```
+
+![](style.png)
+
+## 参考资料：
+
+[1] 华文慕课 王思广 root数据分析 http://www.chinesemooc.org/course.php?ac=course_view&id=1083822&eid=69749
+
+[2] root官网使用手册 https://root.cern/root/htmldoc/guides/users-guide/ROOTUsersGuide.html
+
+[3] 法国物理学家 youtube教程 https://www.youtube.com/playlist?list=PLLybgCU6QCGWLdDO4ZDaB0kLrO3maeYAe
