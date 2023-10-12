@@ -2,7 +2,7 @@
 
 :fire:作者:fire:忽必烈李@bilibili
 
-注：标数字部分基本内容，未表数字部分为优化内容
+注：标数字部分基本内容，未标数字部分为优化内容
 
 [toc]
 
@@ -1350,9 +1350,40 @@ void twoscales() {
 
 ![Superimposed histograms with different scales](https://root.cern/root/htmldoc/guides/users-guide/pictures/0300003A.png)
 
+## root文件的读取
 
+- SetBranchAddress (推荐)   能用于读取string类型的数据，可读任意branch，定义步骤较多
 
-## 参考资料：
+- TTreeReaderValue  定义步骤少，较方便，但只能逐个读取，读取tree中所有的值
+
+```c++
+//====================TreeReader=============================   
+	TFile *f = new TFile("output.root");
+    TTreeReader fReader("Det", f); 
+    TTreeReaderArray<Char_t> SDName = {fReader, "SDName"};
+    TTreeReaderArray<Char_t> PName = {fReader, "PName"};
+
+    while (fReader.Next())
+    {
+        //处理数据
+    }
+
+//=====================SetBranchAddress=======================
+    TFile *f = new TFile("output1.root");
+    TTree *t = (TTree *)f->Get("Det");
+    Char_t SDName[32],PName[32];
+
+    t->SetBranchAddress("SDName",SDName);
+    t->SetBranchAddress("PName",PName);
+
+    Long64_t nEntries = t->GetEntries("PName");
+    for (Long64_t i = 0; i < nEntries; i++)
+    {
+        std::cout<<"PName :"<<PName<<std::endl;
+    }
+```
+
+  参考资料：
 
 [1] 华文慕课 王思广 root数据分析 http://www.chinesemooc.org/course.php?ac=course_view&id=1083822&eid=69749
 
