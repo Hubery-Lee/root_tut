@@ -203,7 +203,7 @@ TGraph2D
         dt->SetPoint(N, x, y, z);
     }
     gStyle->SetPalette(1);
-    dt->Draw("colz"); // surf1  CONT5 TRI1 colz
+    dt->Draw("colz"); // surf1  ACONT4Z TRI1 colz
 
     c->Print("Graph2D.png");
 
