@@ -1350,7 +1350,6 @@ void twoscales() {
 
 ![Superimposed histograms with different scales](https://root.cern/root/htmldoc/guides/users-guide/pictures/0300003A.png)
 
-<<<<<<< HEAD
 ## 如何设置Y轴科学计数
 
 关键代码：
@@ -1604,13 +1603,13 @@ void test()
 }
 ```
 
-=======
 ## root文件的读取
->>>>>>> eaf4383b3b682a0bd1df7a8e7f9c29c177f65f8c
 
 - SetBranchAddress (推荐)   能用于读取string类型的数据，可读任意branch，定义步骤较多
 
 - TTreeReaderValue  定义步骤少，较方便，但只能逐个读取，读取tree中所有的值
+  
+- RDataFrame 提供了一种现代化且高效的方式来处理和分析树（trees）数据。与传统的 TTree::SetBranchAddress 或 TTreeReaderValue 相比，RDataFrame 具有多个优势：
 
 ```c++
 //====================TreeReader=============================   
@@ -1639,7 +1638,270 @@ void test()
     }
 ```
 
-  参考资料：
+## RDataFrame
+https://root.cern/doc/master/classROOT_1_1RDataFrame.html#distrdf
+
+![](./rdataframe.png)
+
+在 ROOT 中，RDataFrame 提供了一种现代化且高效的方式来处理和分析树（trees）数据。与传统的 TTree::SetBranchAddress 或 TTreeReaderValue 相比，RDataFrame 具有多个优势：
+
+1. 更简洁和可读的代码
+RDataFrame 提供了一种基于表达式的接口，可以用链式调用的方法来构建数据分析流程，使代码更简洁和易读。例如：
+
+```cpp
+ROOT::RDataFrame df("myTree", "myFile.root");
+auto hist = df.Filter("x > 0").Histo1D("x");
+hist->Draw();
+```
+与之相比，使用 SetBranchAddress 的代码可能会显得繁琐且难以维护：
+
+```cpp
+TFile file("myFile.root");
+TTree *tree = (TTree*)file.Get("myTree");
+double x;
+tree->SetBranchAddress("x", &x);
+
+TH1D *hist = new TH1D("hist", "hist", 100, 0, 10);
+Long64_t nentries = tree->GetEntries();
+for (Long64_t i = 0; i < nentries; ++i) {
+    tree->GetEntry(i);
+    if (x > 0) hist->Fill(x);
+}
+hist->Draw();
+```
+2. 自动并行化
+RDataFrame 可以非常容易地启用多线程并行处理，以充分利用多核处理器的性能。只需要一行代码就可以启用并行：
+
+```cpp
+ROOT::EnableImplicitMT();
+```
+然后，RDataFrame 会自动在多线程中执行数据处理，而不需要用户额外编写并行处理代码。
+
+3. 丰富的内置功能
+RDataFrame 提供了许多内置的功能和操作，例如过滤（Filter）、定义新列（Define）、计算统计量（Mean、Sum、Count 等）、生成直方图（Histo1D、Histo2D）等。这些功能可以通过链式调用组合起来，非常方便。
+
+例如，计算多个变量的平均值并生成一个新的列：
+
+```cpp
+auto df2 = df.Define("y", "x + 2").Filter("y > 3");
+auto mean = df2.Mean("y");
+std::cout << *mean << std::endl;
+```
+4. 更好的错误处理
+RDataFrame 可以在运行时检测许多常见的错误，例如列不存在、类型不匹配等。这使得调试过程更加方便。
+
+5. 支持多种数据源
+RDataFrame 不仅支持 TTree，还支持 TChain、TTreeReader、CSV 文件和其他数据源。这使得它具有更广泛的应用场景。
+
+6. 延迟评估（Lazy Evaluation）
+RDataFrame 的操作是延迟评估的，意味着只有在需要计算结果时才会真正执行。这可以优化性能，避免不必要的计算。
+
+7. 简化的用户接口
+相比于 TTreeReader，RDataFrame 提供了更高层次的抽象，使用户可以专注于数据分析的逻辑，而不需要处理底层的数据读取细节。例如：
+
+```cpp
+ROOT::RDataFrame df("myTree", "myFile.root");
+auto h = df.Filter("x > 0").Histo1D("x");
+h->Draw();
+```
+RDataFrame 提供了更现代化、更高效、更易用的接口来处理和分析 ROOT 树数据，是进行数据分析的一个强大工具。
+### 基本使用示例
+下面是一个使用 RDataFrame 的基本示例，展示了如何从一个 ROOT 文件中读取数据并进行基本的分析：
+
+C++ 示例
+```cpp
+#include <ROOT/RDataFrame.hxx>
+#include <TH1D.h>
+#include <TCanvas.h>
+
+void example() {
+    ROOT::RDataFrame df("myTree", "myFile.root");
+    auto hist = df.Filter("x > 0").Histo1D("x");
+    
+    TCanvas c;
+    hist->Draw();
+    c.SaveAs("hist.png");
+}
+```
+Python 示例
+```python
+import ROOT
+
+# 创建数据框
+df = ROOT.RDataFrame("myTree", "myFile.root")
+
+# 过滤数据并生成直方图
+hist = df.Filter("x > 0").Histo1D("x")
+
+# 绘制直方图
+c = ROOT.TCanvas()
+hist.Draw()
+c.SaveAs("hist.png")
+```
+
+### 高级用法
+1. 定义新列
+可以通过 Define 方法定义新的列。Define 方法接受一个列名和一个计算表达式：
+
+```python
+df = df.Define("y", "x + 2")
+```
+2. 过滤数据
+使用 Filter 方法可以过滤数据：
+
+```python
+df = df.Filter("y > 3")
+```
+3. 计算统计量
+可以计算多种统计量，如均值、和、计数等：
+
+```python
+mean = df.Mean("y")
+print(mean.GetValue())  # 输出均值
+```
+4. 生成多个直方图
+可以生成多种类型的直方图：
+
+```python
+hist2d = df.Histo2D(("hist2d", "2D Histogram", 100, -3, 3, 100, -3, 3), "x", "y")
+```
+### 与 Python 的联动
+1. 使用 NumPy 和 Pandas
+RDataFrame 可以与 NumPy 和 Pandas 联动使用，以便更好地进行数据处理和分析：
+
+```python
+import ROOT
+import numpy as np
+import pandas as pd
+
+# 创建数据框
+df = ROOT.RDataFrame("myTree", "myFile.root")
+
+# 将数据转换为 NumPy 数组
+numpy_array = df.AsNumpy(["x", "y"])
+
+# 使用 Pandas DataFrame 进行进一步处理
+pandas_df = pd.DataFrame(numpy_array)
+
+# 进行一些 Pandas 操作
+filtered_df = pandas_df[pandas_df["x"] > 0]
+```
+2. 结合 Jupyter Notebook
+RDataFrame 与 Jupyter Notebook 结合使用非常方便，可以在 Notebook 中进行交互式数据分析：
+
+```python
+import ROOT
+import numpy as np
+import pandas as pd
+from ROOT import RDataFrame
+
+# 创建数据框
+df = RDataFrame("myTree", "myFile.root")
+
+# 使用 RDataFrame 进行分析
+hist = df.Filter("x > 0").Histo1D("x")
+
+# 绘制结果
+hist.Draw()
+```
+### 多线程并行处理
+RDataFrame 支持多线程并行处理，只需启用多线程模式：
+
+```python
+import ROOT
+
+# 启用多线程
+ROOT.ROOT.EnableImplicitMT()
+
+# 创建数据框并进行操作
+df = ROOT.RDataFrame("myTree", "myFile.root")
+hist = df.Filter("x > 0").Histo1D("x")
+
+# 绘制结果
+hist.Draw()
+```
+### 使用自定义函数
+可以在 Define 和 Filter 中使用自定义的 Python 函数：
+
+```python
+import ROOT
+
+# 自定义函数
+def my_function(x):
+    return x + 2
+
+# 创建数据框
+df = ROOT.RDataFrame("myTree", "myFile.root")
+
+# 使用自定义函数
+df = df.Define("y", my_function)
+hist = df.Histo1D("y")
+
+# 绘制结果
+hist.Draw()
+```
+RDataFrame 提供了一种强大且易用的方式来处理和分析 ROOT 数据。它与 Python 的良好集成，使得它能够与 NumPy、Pandas 等工具结合使用，进一步增强数据处理和分析的能力。通过启用多线程并行处理，可以显著提高数据处理的效率。以上示例展示了 RDataFrame 的基本用法及其与 Python 的联动，您可以根据需要进行扩展和应用
+
+### 读取其他格式的数据
+RDataFrame can be interfaced with RDataSources. The ROOT::RDF::RDataSource interface defines an API that RDataFrame can use to read arbitrary columnar data formats.
+RDataFrame calls into concrete RDataSource implementations to retrieve information about the data, retrieve (thread-local) readers or "cursors" for selected columns and to advance the readers to the desired data entry. Some predefined RDataSources are natively provided by ROOT such as the ROOT::RDF::RCsvDS which allows to read comma separated files:
+```c++
+auto tdf = ROOT::RDF::FromCSV("MuRun2010B.csv");
+auto filteredEvents =
+   tdf.Filter("Q1 * Q2 == -1")
+      .Define("m", "sqrt(pow(E1 + E2, 2) - (pow(px1 + px2, 2) + pow(py1 + py2, 2) + pow(pz1 + pz2, 2)))");
+auto h = filteredEvents.Histo1D("m");
+h->Draw();
+```
+See also FromNumpy (Python-only), FromRNTuple(), FromArrow(), FromSqlite().
+
+### c++与python 混合编程
+ROOT also offers the option to compile Python functions with fundamental types and arrays thereof using Numba. Such compiled functions can then be used in a C++ expression provided to RDataFrame.
+
+The function to be compiled should be decorated with ROOT.Numba.Declare, which allows to specify the parameter and return types. See the following snippet for a simple example or the full tutorial here.
+```python
+@ROOT.Numba.Declare(["float"], "bool")
+def myFilter(x):
+    return x > 10
+ 
+df = ROOT.RDataFrame("myTree", "myFile.root")
+sum = df.Filter("Numba::myFilter(x)").Sum("y")
+print(sum.GetValue())
+```
+It also works with collections: RVec objects of fundamental types can be transparently converted to/from numpy arrays:
+```python
+@ROOT.Numba.Declare(['RVec<float>', 'int'], 'RVec<float>')
+def pypowarray(numpyvec, pow):
+    return numpyvec**pow
+ 
+df.Define('array', 'ROOT::RVecF{1.,2.,3.}')\
+  .Define('arraySquared', 'Numba::pypowarray(array, 2)')
+```
+Note that this functionality requires the Python packages numba and cffi to be installed.
+
+### Interoperability with NumPy
+1. Conversion to NumPy arrays
+Eventually, you probably would like to inspect the content of the RDataFrame or process the data further with Python libraries. For this purpose, we provide the AsNumpy() function, which returns the columns of your RDataFrame as a dictionary of NumPy arrays. See a simple example below or a full tutorial here.
+```python
+df = ROOT.RDataFrame("myTree", "myFile.root")
+cols = df.Filter("x > 10").AsNumpy(["x", "y"]) # retrieve columns "x" and "y" as NumPy arrays
+print(cols["x"], cols["y"]) # the values of the cols dictionary are NumPy arrays
+```
+2. Processing data stored in NumPy arrays
+In case you have data in NumPy arrays in Python and you want to process the data with ROOT, you can easily create an RDataFrame using ROOT.RDF.FromNumpy. The factory function accepts a dictionary where the keys are the column names and the values are NumPy arrays, and returns a new RDataFrame with the provided columns.
+
+Only arrays of fundamental types (integers and floating point values) are supported and the arrays must have the same length. Data is read directly from the arrays: no copies are performed.
+```python
+# Read data from NumPy arrays
+# The column names in the RDataFrame are taken from the dictionary keys
+x, y = numpy.array([1, 2, 3]), numpy.array([4, 5, 6])
+df = ROOT.RDF.FromNumpy({"x": x, "y": y})
+ 
+# Use RDataFrame as usual, e.g. write out a ROOT file
+df.Define("z", "x + y").Snapshot("tree", "file.root")
+```
+
+参考资料：
 
 [1] 华文慕课 王思广 root数据分析 http://www.chinesemooc.org/course.php?ac=course_view&id=1083822&eid=69749
 
