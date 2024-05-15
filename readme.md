@@ -1350,6 +1350,259 @@ void twoscales() {
 
 ![Superimposed histograms with different scales](https://root.cern/root/htmldoc/guides/users-guide/pictures/0300003A.png)
 
+## 如何设置Y轴科学计数
+
+关键代码：
+
+```c++
+// force sceintific notation 
+TGaxis::SetMaxDigits(3);
+```
+
+案例：
+
+```c++
+#include <Riostream.h>
+#include <vector.h>
+
+#include "TROOT.h"
+#include "TMultiGraph.h"
+#include "TFile.h"
+#include "TAxis.h"
+#include "TCanvas.h"
+#include "TGraph.h"
+#include "TObjString.h"
+#include "TString.h"
+
+void test()
+{ 
+  std::vector<Int_t>    yIndices1;
+  std::vector<Int_t>    yIndices2;
+  std::vector<Double_t> xValues;
+  std::vector<TString>  yTitres;
+
+  TString line;
+  TString lastLine;
+  Int_t vdate[3];
+  char delimiters[] = " \t\n;";
+  char varexp[10];
+
+  //========================== User data =====================================//
+  //;input file
+/*
+  TString iDRun = "MOD3D";
+  TString iDir ="./";
+  TString initFile = iDir+iDRun+"_InitialParameters.dat";
+  TString file1    = iDir+iDRun+"_MPVPar_Sud.dat";
+  TString file2    = iDir+iDRun+"_MPAlt_Sud.dat";
+*/
+  // number of columns in input file
+  const Int_t nc1 = 29; // file1
+  const Int_t nc2 = 29; // file2
+
+  // indices of columns to plot (0 is first column); Titles of columns to plot 
+  yIndices1.push_back( 7); yIndices2.push_back(-1); yTitres.push_back("Bz");
+  yIndices1.push_back( 8); yIndices2.push_back(-1); yTitres.push_back("E");
+  yIndices1.push_back(21); yIndices2.push_back(21); yTitres.push_back("Bo");
+  yIndices1.push_back( 6); yIndices2.push_back( 6); yTitres.push_back("Bm");
+  yIndices1.push_back( 1); yIndices2.push_back( 1); yTitres.push_back("h");
+  yIndices1.push_back( 2); yIndices2.push_back( 2); yTitres.push_back("Latitude");
+  yIndices1.push_back(18); yIndices2.push_back(18); yTitres.push_back("Lm");
+  yIndices1.push_back(17); yIndices2.push_back(17); yTitres.push_back("L*");
+  yIndices1.push_back(27); yIndices2.push_back(27); yTitres.push_back("K");
+  yIndices1.push_back(19); yIndices2.push_back(19); yTitres.push_back("Arc");
+  yIndices1.push_back(23); yIndices2.push_back(23); yTitres.push_back("Stormer Cst.");
+
+  // Set the number of graphs
+  const Int_t ng = 11;
+  Int_t xIndice = 4; // Column must be in file1
+  TString xTitre("Longitude"); // Common x title
+
+  //======================End User data ======================================//
+
+  TGraph *tGraph1 = new TGraph[ng];
+  TGraph *tGraph2 = new TGraph[ng];
+  TMultiGraph *mg = new TMultiGraph[ng];
+  // force sceintific notation 
+  TGaxis::SetMaxDigits(3);
+/*
+  // === Get Date in init parameter file ======================================
+  ifstream stream1(initFile.Data());
+  if (!stream1.is_open())
+  { cout << "error opening stream1 "<< initFile << endl;
+    return;
+  }
+  while(!line.ReadLine(stream1).eof()) // Get last line with date information
+  { lastLine = line; }
+  stream1.close();
+
+  TObjArray* Strings = lastLine.Tokenize(delimiters); // Separate blanks
+  TIter iString(Strings);
+  TObjString* os=0;
+  for(Int_t i=0;i<3;i++)
+  { os=(TObjString*)iString();
+    vdate[i] = os->GetString().Atoi();
+  }
+  delete Strings;
+  char date[11];
+  sprintf(date,"Date %d/%02d/%02d",vdate[0],vdate[1],vdate[2]);
+
+  cout << date <<endl;
+
+  //== Read data from ASCII files into graphs =================================
+
+  //== file1
+  Double_t v1[nc1]; // store data from a line
+  ifstream stream2(file1.Data());
+  if (!stream2.is_open())
+  { cout << "error opening stream2 "<< initFile << endl;
+    return;
+  }
+  cout << "reading stream2 "<<file1<<endl;
+  Int_t nl = 0;
+  while (!line.ReadLine(stream2).eof()) // assumes empty line at eof!
+  { TObjArray* Strings = line.Tokenize(delimiters);
+    if(Strings->GetEntriesFast())
+    { TIter iString(Strings);
+      TObjString* os=0;
+      Int_t j=0;
+      while ((os=(TObjString*)iString()))
+      { v1[j] = os->GetString().Atof();
+	if (j == xIndice) { xValues.push_back(v1[j]); }
+	j++;
+      }
+      for(Int_t i=0;i<ng;i++)
+      { if(yIndices1[i] >= 0)
+        { tGraph1[i].SetPoint(nl,xValues[nl],v1[yIndices1[i]]); }
+      }
+      nl++;
+    }
+    delete Strings;
+  }
+  stream2.close();
+
+  //== file2
+  Double_t v2[nc2];
+  ifstream stream3(file2.Data());
+  if (!stream3.is_open())
+  { cout << "error opening stream3 "<< initFile << endl;
+    return;
+  }
+  cout << "reading stream3 "<<file2<<endl;
+  nl=0;
+  while (!line.ReadLine(stream3).eof()) // assumes empty line at eof!
+  { TObjArray* Strings = line.Tokenize(delimiters);
+    if(Strings->GetEntriesFast())
+    { TIter iString(Strings);
+      TObjString* os=0;
+      Int_t j=0;
+      while ((os=(TObjString*)iString()))
+      { v2[j++] = os->GetString().Atof(); }
+      for(Int_t i=0;i<ng;i++)
+      { if(yIndices2[i] >= 0)
+        { tGraph2[i].SetPoint(nl,xValues[nl],v2[yIndices2[i]]); }
+      }
+      nl++;
+    }
+    delete Strings;
+  }
+  stream3.close();
+*/
+
+  //== Generate Graphs for test ================================================
+  Double_t cnst[] = {0,10,100,1000,-10000,100000,1000000,
+                    1000000,10000000,100000000,100000000000};
+  for (Int_t n=0;n<100;n++)
+  { Double_t x = n*0.1;
+    for (Int_t i=0;i<ng;i++)
+    { Double_t y = cnst[i]+sin(x);
+      tGraph1[i].SetPoint(n,x,cnst[i]);
+      tGraph2[i].SetPoint(n,x,y);
+    }
+  }
+  
+  //== Draw Multiple Graphs ====================================================
+  // Create a new canvas (window) to plot graphs.
+  TCanvas *c1 = new TCanvas("c1","Trajectories",0,0,800,950);
+  c1->SetFillColor(0);
+  gPad->SetLeftMargin(0.1);
+  gPad->SetRightMargin(0.001);
+  gPad->SetBottomMargin(0.3);
+  gPad->SetFrameFillColor(0);
+  gPad->SetFrameFillStyle(4000);
+  gPad->SetFrameBorderSize(0);
+  gPad->SetFrameBorderMode(0);
+  // Divide to create multiple graphs with common X axis
+  c1->Divide(1,ng,10.5,0);
+
+  gPad->SetBottomMargin(0.3);
+  for (Int_t i=0;i<ng;i++)
+  { c1->cd(i+1);
+    cout << i+1 << " " << (yTitres[i]).Data() << endl;
+    gPad->SetRightMargin(0.05);
+    gPad->SetFillColor(0);
+    gPad->SetFrameFillStyle(4000);
+    gPad->SetFrameBorderSize(0);
+    gPad->SetFrameBorderMode(0);
+
+    // Draw first graph
+    if(yIndices1[i] >= 0)
+    { tGraph1[i].SetMarkerStyle(8);
+      tGraph1[i].SetMarkerSize(0.6);
+      tGraph1[i].SetMarkerColor(kGreen);
+      tGraph1[i].SetLineColor(kGreen);
+      mg[i].Add(&tGraph1[i]);
+    }
+
+    // Superimpose a second graph if yIndice2 is set 
+    if(yIndices2[i] >= 0)
+    { tGraph2[i].SetMarkerColor(kBlue);
+      tGraph2[i].SetMarkerStyle(8);
+      tGraph2[i].SetMarkerSize(0.4);
+      mg[i].Add(&tGraph2[i]);
+      cout << "Deux graphs " << endl;
+    }
+
+    mg[i].Draw("AP");
+    gPad->Update();
+  
+    if(i<ng-1)
+    { TAxis *tYAxis = mg[i].GetYaxis();
+      tYAxis->SetTitle((yTitres[i]).Data());
+      tYAxis->SetNdivisions(505, kFALSE);
+      tYAxis->CenterTitle(kTRUE);
+      tYAxis->CenterLabels(kTRUE);
+      tYAxis->SetLabelSize(3.5*tYAxis->GetLabelSize());
+      tYAxis->SetTitleSize(3.5*tYAxis->GetTitleSize());
+      tYAxis->SetLabelOffset(2.5*tYAxis->GetLabelOffset());
+      tYAxis->SetTitleOffset(0.4*tYAxis->GetTitleOffset());
+    }
+    else
+    { TAxis *tYAxis = mg[i].GetYaxis();
+      tYAxis->SetTitle((yTitres[i]).Data());
+      tYAxis->SetNdivisions(505, kFALSE);
+      tYAxis->CenterTitle(kTRUE);
+      tYAxis->CenterLabels(kTRUE);
+      tYAxis->SetLabelSize(2.5*tYAxis->GetLabelSize());
+      tYAxis->SetTitleSize(2.5*tYAxis->GetTitleSize());
+      tYAxis->SetLabelOffset(1.5*tYAxis->GetLabelOffset());
+      tYAxis->SetTitleOffset(0.5*tYAxis->GetTitleOffset());
+
+      TAxis *tXAxis = mg[i].GetXaxis();
+      tXAxis->SetTitle(xTitre.Data());
+      tXAxis->SetLabelSize(2.5*tXAxis->GetLabelSize());
+      tXAxis->SetTitleSize(2.5*tXAxis->GetTitleSize());
+      tXAxis->SetLabelOffset(2.5*tXAxis->GetLabelOffset());
+      tXAxis->SetTitleOffset(1.5*tXAxis->GetTitleOffset());
+    }
+
+    gPad->Modified();
+    gPad->Update();
+  }
+
+}
+```
+
 
 
 ## 参考资料：

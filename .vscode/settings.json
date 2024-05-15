@@ -7,5 +7,6 @@
         "testStyle.C": "cpp",
         "testStyle2.C": "cpp",
         "histpalettecolor.C": "cpp"
-    }
+    },
+    "iis.configDir": ""
 }
