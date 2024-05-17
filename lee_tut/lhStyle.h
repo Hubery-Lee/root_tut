@@ -4,7 +4,7 @@
  * @Author: Hubery-Lee
  * @E-mail: hrbeulh@126.com
  * @Date: 2023-12-08 21:52:09
- * @LastEditTime: 2024-05-17 11:10:17
+ * @LastEditTime: 2024-05-17 11:17:09
  * @LastEditors: hubery-lee hrbeulh@126.com
  */
 // python 版可参考 atlas-plots python package
@@ -446,7 +446,7 @@ void myStyle()
 
     // use bold lines and markers
     myStyle->SetMarkerStyle(20);
-    myStyle->SetHistLineWidth(1.2);
+    myStyle->SetHistLineWidth(1);
     myStyle->SetLineStyleString(2, "[12 12]"); // postscript dashes
 
     // get rid of X error bars and y error bar caps
@@ -816,22 +816,6 @@ void MoveStat(TCanvas *ctmp,TH1* h,Double_t x0,Double_t y0,Double_t x1, Double_t
   pstmp->SetTextColor(icolor);
   ctmp->Modified();
   ctmp->Update();
-}
-
-TH1 *ProjTGraphErrors2TH1(Char_t histname[],TGraphErrors *gr,Double_t binw=-0.01){
-  Double_t Ymin = gr->GetYaxis()->GetXmin();
-  Double_t Ymax = gr->GetYaxis()->GetXmax();
-  if(binw<0){
-    binw = (Ymax-Ymin)/100;
-  }
-  TH1F *newH = newTH1F(histname,binw,Ymin,Ymax);
-  Int_t n = gr->GetN();
-  Double_t x,y;
-  for(Int_t i=0; i<n; i++) {
-    gr->GetPoint(i,x,y);
-    FillTH1F(y,newH);
-  }
-  return newH;
 }
 
 TH1D *Create1DDHistogram(TString label, TString title, Int_t nbin, Double_t low, Double_t up, TString type = "")
