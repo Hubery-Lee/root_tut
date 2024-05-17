@@ -4,8 +4,8 @@
  * @Author: Hubery-Lee
  * @E-mail: hrbeulh@126.com
  * @Date: 2023-12-08 21:52:09
- * @LastEditTime: 2024-05-17 11:17:09
- * @LastEditors: hubery-lee hrbeulh@126.com
+ * @LastEditTime: 2024-05-17 12:28:32
+ * @LastEditors: lihui-wsl2-ubuntu22.04 hrbeulh@126.com
  */
 // python 版可参考 atlas-plots python package
 // example 可参考 https://atlas-plots.readthedocs.io/en/latest/examples.html
@@ -204,12 +204,6 @@ void set_color_env()
     // how to use the color defined above --->  SetLineColor(TColor::GetColor(SkyBlue)) or SetLineColor(TColor::GetColor(SkyBlue.Data()))
 }
 
-/// @brief 设置坐标轴科学记数法
-void set_axis_digital()
-{
-    TGaxis::SetMaxDigits(3);
-}
-
 /// @brief 设置多线程
 void MTOpen()
 {
@@ -290,6 +284,16 @@ TCanvas *setElsevierCanvas(const Char_t name[] = "c1", Int_t cW = 800, Int_t cH 
     myStyle->SetTitleX(0.5); //X title位于画板区域中心
     myStyle->SetTitleY(0.5); //Y title位于画板区域中心
     myStyle->SetTitleAlign(23); // 23 表示标题在水平和垂直方向上都居中
+    // 水平对齐值和垂直对齐值的取值范围为 1 到 3，分别表示左对齐、居中对齐和右对齐。这两个值可以组合在一起，形成一个两位数的整数，表示水平和垂直方向上的对齐方式。
+    // 11：左对齐
+    // 12：左对齐、垂直居中
+    // 13：左对齐、垂直右对齐
+    // 21：水平居中、垂直左对齐
+    // 22：水平居中、垂直居中
+    // 23：水平居中、垂直右对齐
+    // 31：右对齐、垂直左对齐
+    // 32：右对齐、垂直居中
+    // 33：右对齐、垂直右对齐
 
     // 设置标题大小
     myStyle->SetTitleSize(0.05, "X");
@@ -311,11 +315,16 @@ TCanvas *setElsevierCanvas(const Char_t name[] = "c1", Int_t cW = 800, Int_t cH 
     myStyle->SetTitleFont(font, "X");
     myStyle->SetTitleFont(font, "Y");
     myStyle->SetTitleFont(font, "Z");
+    myStyle->SetTitleFont(font, "XYZ");
     myStyle->SetTitleFont(font, "title");
     myStyle->SetLabelFont(font, "X");
     myStyle->SetLabelFont(font, "Y");
-    myStyle->SetLabelFont(font, "X");
+    myStyle->SetLabelFont(font, "Z");
+    myStyle->SetLabelFont(font, "XYZ");
     myStyle->SetTextFont(font);
+    myStyle->SetLegendFont(font);
+    myStyle->SetStatFont(font);
+
 
     // 设置统计框
     myStyle->SetOptStat(1110); // 设置统计框中显示的内容，这里设置为显示均值、标准偏差、有效事件数和积分值。
@@ -335,19 +344,6 @@ TCanvas *setElsevierCanvas(const Char_t name[] = "c1", Int_t cW = 800, Int_t cH 
     // 设置右侧和上侧ticks的是否显示
     myStyle->SetPadTickX(0); //
     myStyle->SetPadTickY(0); //
-
-    // 设置标题对齐方式为居中
-    myStyle->SetTitleAlign(23); // 23 表示标题在水平和垂直方向上都居中
-    // 水平对齐值和垂直对齐值的取值范围为 1 到 3，分别表示左对齐、居中对齐和右对齐。这两个值可以组合在一起，形成一个两位数的整数，表示水平和垂直方向上的对齐方式。
-    // 11：左对齐
-    // 12：左对齐、垂直居中
-    // 13：左对齐、垂直右对齐
-    // 21：水平居中、垂直左对齐
-    // 22：水平居中、垂直居中
-    // 23：水平居中、垂直右对齐
-    // 31：右对齐、垂直左对齐
-    // 32：右对齐、垂直居中
-    // 33：右对齐、垂直右对齐
 
     set_nicer_2d_plot_style();
 
@@ -383,6 +379,96 @@ TCanvas *setElsevierCanvas(const Char_t name[] = "c1", Int_t cW = 800, Int_t cH 
 
 //-------------------------------------
 // 独立风格
+void MyTimesStyle()
+{
+     // 创建一个默认的样式
+    TStyle *myStyle = new TStyle("MyTimesStyle", "Elsevier Journal Plot Style");
+    myStyle->SetFrameBorderMode(0);
+    myStyle->SetCanvasBorderMode(0);
+    myStyle->SetPadBorderMode(0);
+    myStyle->SetPadColor(0);
+    myStyle->SetCanvasColor(0);
+    myStyle->SetTitleColor(1);
+    myStyle->SetStatColor(0);
+
+    // 设置字体
+    int font = 132; // 设置字体为编号132
+
+    myStyle->SetPalette(1, 0);
+
+    // 设置标题对齐方式为居中
+    myStyle->SetTitleX(0.5); //X title位于画板区域中心
+    myStyle->SetTitleY(0.5); //Y title位于画板区域中心
+    myStyle->SetTitleAlign(23); // 23 表示标题在水平和垂直方向上都居中
+    // 水平对齐值和垂直对齐值的取值范围为 1 到 3，分别表示左对齐、居中对齐和右对齐。这两个值可以组合在一起，形成一个两位数的整数，表示水平和垂直方向上的对齐方式。
+    // 11：左对齐
+    // 12：左对齐、垂直居中
+    // 13：左对齐、垂直右对齐
+    // 21：水平居中、垂直左对齐
+    // 22：水平居中、垂直居中
+    // 23：水平居中、垂直右对齐
+    // 31：右对齐、垂直左对齐
+    // 32：右对齐、垂直居中
+    // 33：右对齐、垂直右对齐
+
+    // 设置标题大小
+    myStyle->SetTitleSize(0.05, "X");
+    myStyle->SetTitleSize(0.05, "Y");
+
+    // 设置标签大小
+    myStyle->SetLabelSize(0.04, "X");
+    myStyle->SetLabelSize(0.04, "Y");
+
+    // 设置标签偏移量
+    myStyle->SetLabelOffset(0.02, "X");
+    myStyle->SetLabelOffset(0.02, "Y");
+
+    // 设置标题偏移量
+    myStyle->SetTitleOffset(1.2, "X");
+    myStyle->SetTitleOffset(1.2, "Y");
+
+    // 设置字体
+    myStyle->SetTitleFont(font, "X");
+    myStyle->SetTitleFont(font, "Y");
+    myStyle->SetTitleFont(font, "Z");
+    myStyle->SetTitleFont(font, "XYZ");
+    myStyle->SetTitleFont(font, "title");
+    myStyle->SetLabelFont(font, "X");
+    myStyle->SetLabelFont(font, "Y");
+    myStyle->SetLabelFont(font, "Z");
+    myStyle->SetLabelFont(font, "XYZ");
+    myStyle->SetTextFont(font);
+    myStyle->SetLegendFont(font);
+    myStyle->SetStatFont(font);
+
+    // 设置统计框
+    myStyle->SetOptStat(1110); // 设置统计框中显示的内容，这里设置为显示均值、标准偏差、有效事件数和积分值。
+    myStyle->SetStatColor(10);
+    myStyle->SetCanvasColor(10);
+    myStyle->SetTitleColor(10, "title");
+    myStyle->SetFillColor(10);
+    myStyle->SetStatX(0.99); // 设置统计框在 X 轴上的位置为画布的右边缘。
+    myStyle->SetStatY(0.99); // 设置统计框在 Y 轴上的位置为画布的顶边缘。
+
+    // myStyle->SetOptDate(1); //第一个数字 1 表示显示日期。第二个数字 1 表示在统计框中显示日期
+    myStyle->SetOptTitle(0); // 设置标题的显示选项。在这里，参数为1表示显示标题。如果设置为0，则标题将不会显示。
+    // myStyle->SetOptStat(1110); //设置统计框的显示选项。在这里，参数为1表示显示统计框。如果设置为0，则统计框将不会显示。
+    // myStyle->SetOptFit(0); //设置拟合框的显示选项。在这里，参数为0表示不显示拟合框。如果设置为1，则拟合框将会显示。
+
+    // 设置右侧和上侧ticks的是否显示
+    myStyle->SetPadTickX(0); //
+    myStyle->SetPadTickY(0); //
+
+    set_nicer_2d_plot_style();
+
+    // 切入当前style
+    myStyle->cd();
+
+    // 应用样式
+    gROOT->SetStyle("MyTimesStyle");
+    gROOT->ForceStyle();
+}
+
 void myStyle()
 {
     int line_w = 2; // normal size
@@ -1022,6 +1108,45 @@ void LineY(Double_t atY, Int_t iColor = kRed, const Char_t canvasName[] = "c1")
         l1->SetLineColor(iColor);
         l1->Draw();
     }
+}
+
+//============================================================================
+//  TAxis
+//============================================================================
+
+// Helper function to set axis fonts for a drawn histogram or graph
+void setAxisTimesFonts(TAxis *xAxis, TAxis *yAxis, TAxis *zAxis, int font=132)
+{
+    if (xAxis) {
+        xAxis->SetTitleFont(font);
+        xAxis->SetLabelFont(font);
+    }
+    if (yAxis) {
+        yAxis->SetTitleFont(font);
+        yAxis->SetLabelFont(font);
+    }
+    if (zAxis) {
+        zAxis->SetTitleFont(font);
+        zAxis->SetLabelFont(font);
+    }
+}
+// Helper function to set axis fonts for a drawn histogram or graph
+void setAxisTimesFonts(TAxis *xAxis, TAxis *yAxis, int font=132)
+{
+    if (xAxis) {
+        xAxis->SetTitleFont(font);
+        xAxis->SetLabelFont(font);
+    }
+    if (yAxis) {
+        yAxis->SetTitleFont(font);
+        yAxis->SetLabelFont(font);
+    }
+}
+
+/// @brief 设置坐标轴科学记数法
+void setAxisDigits()
+{
+    TGaxis::SetMaxDigits(3);
 }
 
 //============================================================================
