@@ -4,8 +4,8 @@
  * @Author: Hubery-Lee
  * @E-mail: hrbeulh@126.com
  * @Date: 2023-12-08 21:52:09
- * @LastEditTime: 2024-05-16 10:04:02
- * @LastEditors: lihui-wsl2-ubuntu22.04 hrbeulh@126.com
+ * @LastEditTime: 2024-05-17 11:10:17
+ * @LastEditors: hubery-lee hrbeulh@126.com
  */
 // python 版可参考 atlas-plots python package
 // example 可参考 https://atlas-plots.readthedocs.io/en/latest/examples.html
@@ -380,6 +380,170 @@ TCanvas *setElsevierCanvas(const Char_t name[] = "c1", Int_t cW = 800, Int_t cH 
 // Modern Bold Video Pub ATLAS BELLE2 Default Plain
 // gROOT->GetStyle(XXX);
 // pip install atlas-plots python package
+
+//-------------------------------------
+// 独立风格
+void myStyle()
+{
+    int line_w = 2; // normal size
+    //	int line_w=6;//big size
+
+    TStyle *myStyle = new TStyle("myStyle", "my plots style");
+
+    myStyle->SetPalette(1, 0);
+
+    // use plain black on white colors
+    myStyle->SetCanvasColor(10);
+    myStyle->SetCanvasBorderMode(0);
+    myStyle->SetCanvasBorderSize(2);
+    myStyle->SetPadColor(10);
+    myStyle->SetPadBorderMode(0);
+    myStyle->SetPadBorderSize(2); //D 0
+    myStyle->SetPadBottomMargin(0.14);
+    myStyle->SetPadLeftMargin(0.14); //D 0.14
+    myStyle->SetPadRightMargin(0.12); 
+    myStyle->SetPadTopMargin(0.08);  //D 0.04
+    myStyle->SetLineWidth(line_w); // change tick width
+    // myStyle->SetPadTickX(1);
+    // myStyle->SetPadTickY(1);
+
+    myStyle->SetTickLength(0.02, "X");
+    myStyle->SetTickLength(0.02, "Y");
+    myStyle->SetPadGridX(0);
+    myStyle->SetPadGridY(0);
+    myStyle->SetGridColor(18);
+    myStyle->SetFrameFillStyle(4000);
+    myStyle->SetFrameLineWidth(line_w);
+    myStyle->SetFrameBorderSize(1);
+    myStyle->SetFrameBorderMode(0);
+    myStyle->SetFrameFillColor(10);
+    
+    // gStyle->SetFrameLineStyle(1);
+    myStyle->SetLegendBorderSize(0);
+
+    // set the paper & margin sizes
+    myStyle->SetPaperSize(20, 26);
+
+    int font = 132;
+    // use large Times-Roman fonts
+    myStyle->SetTextFont(font);
+    myStyle->SetTextSize(0.06);
+    myStyle->SetLabelFont(font, "xyz");
+    myStyle->SetTitleFont(font, "xyz");
+    myStyle->SetLegendFont(font);
+    myStyle->SetStatFont(font);
+
+    myStyle->SetLabelSize(0.06, "xyz"); // D=0.04
+    myStyle->SetTitleSize(0.06, "xyz"); // D=0.02
+    myStyle->SetTitleSize(0.05, "");    // main title
+
+    myStyle->SetLabelOffset(0.01, "xyz"); // D=0.005
+    myStyle->SetTitleOffset(1.2, "x");
+    myStyle->SetTitleOffset(1.0, "y");
+    myStyle->SetTitleOffset(1.2, "z");
+    myStyle->SetTitleOffset(0.);
+    TGaxis::SetMaxDigits(3);  // force scientific notation
+
+    // use bold lines and markers
+    myStyle->SetMarkerStyle(20);
+    myStyle->SetHistLineWidth(1.2);
+    myStyle->SetLineStyleString(2, "[12 12]"); // postscript dashes
+
+    // get rid of X error bars and y error bar caps
+    // myStyle->SetErrorX(0.001);
+
+    // do not display any of the standard histogram decorations
+    myStyle->SetTitleX(0.5);
+    myStyle->SetTitleAlign(23);
+    // myStyle->SetTitleColor(0);
+    // myStyle->SetTitleStyle(0);
+    // myStyle->SetTitleBorderSize(0); // D=0
+    myStyle->SetOptTitle(0);
+    myStyle->SetOptStat(0);
+    myStyle->SetOptFit(0);
+
+    myStyle->SetStatColor(10);
+
+    gROOT->SetStyle("myStyle");
+    gROOT->ForceStyle();
+}
+
+//-------------------------------------
+// 全局风格
+void globleStyle()
+{
+    cout << "gStyle mode requested!!!" << endl;
+
+    int font = 42;
+    // int font = 132;
+
+    gStyle->SetOptTitle(1);
+    gStyle->SetOptDate(0);
+    gStyle->SetOptStat(0);
+    gStyle->SetStatColor(10);
+    // gStyle->SetOptFit(0);
+    gStyle->SetStatH(0.17);
+    gStyle->SetStatW(0.17);
+    gStyle->SetPalette(1, 0);
+    gStyle->SetTextFont(font);
+    gStyle->SetTextSize(0.055);
+    // gStyle->SetErrorX(1);
+    gStyle->SetEndErrorSize(4);
+    gStyle->SetDrawBorder(0);
+
+    gStyle->SetCanvasDefH(600);
+    gStyle->SetCanvasDefW(800);
+    gStyle->SetCanvasColor(10);
+    gStyle->SetCanvasBorderMode(0);
+    gStyle->SetCanvasBorderSize(2);
+    gStyle->SetPadColor(10);
+    gStyle->SetPadBorderMode(0);
+    gStyle->SetPadBorderSize(0);
+    gStyle->SetPadBottomMargin(0.12);
+    gStyle->SetPadLeftMargin(0.12);
+    gStyle->SetPadRightMargin(0.10);
+    gStyle->SetPadTopMargin(0.08);
+    gStyle->SetPadTickX(1);
+    gStyle->SetPadTickY(1);
+    gStyle->SetTickLength(0.02, "X");
+    gStyle->SetTickLength(0.02, "Y");
+    gStyle->SetPadGridX(0);
+    gStyle->SetPadGridY(0);
+    gStyle->SetGridColor(18);
+    gStyle->SetLineWidth(2);
+    gStyle->SetFrameFillStyle(4000);
+    gStyle->SetFrameLineWidth(2);
+    gStyle->SetFrameBorderSize(2);
+    gStyle->SetFrameBorderMode(0);
+    gStyle->SetFrameFillColor(10);
+    // gStyle->SetFrameLineStyle(1);
+
+    gStyle->SetNdivisions(510, "X");
+    gStyle->SetNdivisions(510, "Y");
+    gStyle->SetLabelSize(0.04, "X");
+    gStyle->SetLabelSize(0.04, "Y");
+    gStyle->SetLabelFont(font, "X");
+    gStyle->SetLabelFont(font, "Y");
+    gStyle->SetLabelOffset(0.01, "X");
+    gStyle->SetLabelOffset(0.01, "Y");
+    gStyle->SetTitleOffset(1.8, "X");
+    gStyle->SetTitleOffset(1.2, "Y");
+    gStyle->SetTitleOffset(0.);
+    // gStyle->SetPadRightMargin(.2);
+    gStyle->SetTitleSize(0.05, "X");
+    gStyle->SetTitleSize(0.05, "Y");
+    gStyle->SetTitleSize(0.05, "Z");
+    gStyle->SetTitleFont(font, "X");
+    gStyle->SetTitleFont(font, "Y");
+    gStyle->SetTitleFont(font, "Z");
+
+    // COPY FROM MYSTYLE()
+    // gStyle->SetTitleColor(3);
+    // gStyle->SetTitleX(0.07);
+    // gStyle->SetTitleAlign(23);
+    // gStyle->SetTitleStyle(0);
+    // gStyle->SetTitleBorderSize(0);
+}
 
 //============================================================================
 //  TGraph 重点关注 TMultiGraph
